@@ -5,8 +5,8 @@ import time
 import re
 
 DEBUG = True
-BUFFER_SIZE = 4096
-PATTERN = r"<record>[\s\S]*?<\/record>"
+BUFFER_SIZE = io.DEFAULT_BUFFER_SIZE
+PATTERN = r"(<record>[\s\S]*?<\/record>)*"
 
 def main(input_file, output_file):
     direct_path = os.path.dirname(os.path.realpath(__file__))
@@ -16,22 +16,39 @@ def main(input_file, output_file):
          io.open(file="{path}/{file}".format(path=direct_path,file=output_file), mode="w",buffering=BUFFER_SIZE) as buff_writer:
 
         buffer = buff_reader.read(BUFFER_SIZE)
-        iterations = 0
+        # iterations = 0
 
-        while buffer and iterations<10:
-            is_record = compiled_pattern.search(string=buffer)
 
-            if is_record:
-                record = buffer[:is_record.end()]+"\n"
-                buffer = buffer[is_record.end():]
-                iterations = 0
+        is_record = compiled_pattern.search(string=buffer)
 
-                buff_writer.write(record)
-            iterations += 1
-            buffer += buff_reader.read(BUFFER_SIZE)
+        print("-------------------------------------------------------------------------------")
 
-        if buffer:
-            buff_writer.write(buffer)
+        print(buffer+"\n\n\n"+str(len(is_record.groups())))
+
+        record = buffer[:is_record.end()] + "\n"
+        buffer = buffer[is_record.end():]
+
+        buff_writer.write(record)
+
+        buffer += buff_reader.read(BUFFER_SIZE)
+
+        print(buffer+"\n\n")
+        print("-------------------------------------------------------------------------------")
+
+        # while buffer and iterations<10:
+        #     is_record = compiled_pattern.search(string=buffer)
+        #
+        #     if is_record:
+        #         record = buffer[:is_record.end()]+"\n"
+        #         buffer = buffer[is_record.end():]
+        #         iterations = 0
+        #
+        #         buff_writer.write(record)
+        #     iterations += 1
+        #     buffer += buff_reader.read(BUFFER_SIZE)
+        #
+        # if buffer:
+        #     buff_writer.write(buffer)
 
 
 if __name__=="__main__":
